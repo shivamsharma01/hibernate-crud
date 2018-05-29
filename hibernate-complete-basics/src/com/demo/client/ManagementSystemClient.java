@@ -3,19 +3,27 @@ package com.demo.client;
 import java.util.List;
 import java.util.Scanner;
 
+import org.hibernate.Session;
+
 import com.demo.entity.Assets;
 import com.demo.entity.Employee;
 import com.demo.service.AssetsService;
 import com.demo.service.AssetsServiceImpl;
 import com.demo.service.EmployeeService;
 import com.demo.service.EmployeeServiceImpl;
+import com.demo.util.HibernateUtil;
 
 public class ManagementSystemClient {
 	private static EmployeeService empService = new EmployeeServiceImpl();
 	private static AssetsService assetsService = new AssetsServiceImpl();
 
 	public static void main(String[] args) {
-		menu();
+		Session session = HibernateUtil.getSession();
+		Employee emp = (Employee) session.load(Employee.class, 1001);
+		session.evict(emp);
+		Employee emp2 = (Employee) session.load(Employee.class, new Integer(1001));
+		System.out.println(emp2.getEmpName());
+		// menu();
 	}
 
 	private static void menu() {
@@ -151,11 +159,11 @@ public class ManagementSystemClient {
 		int empId = scan.nextInt();
 		List<Object> empAndAsset = empService.getEmployeeAndAsset(empId);
 		for (Object obj : empAndAsset) {
-			if (obj !=null && obj instanceof Employee) {
+			if (obj != null && obj instanceof Employee) {
 				Employee emp = (Employee) obj;
 				System.out.println("Employee Details");
 				System.out.println(emp.getEmpName());
-			} else if (obj !=null && obj instanceof Assets) {
+			} else if (obj != null && obj instanceof Assets) {
 				Assets asset = (Assets) obj;
 				System.out.println("Asset Details");
 				System.out.println("Asset Id :" + asset.getAssetId() + " : " + asset.getAssetLocation());
@@ -166,10 +174,10 @@ public class ManagementSystemClient {
 	private static void findAverage() {
 		List<Assets> assets = assetsService.getPricePerLocation();
 		for (Assets asset : assets) {
-			System.out.println(asset.getAssetLocation() +" avg is "+asset.getAssetPrice());
+			System.out.println(asset.getAssetLocation() + " avg is " + asset.getAssetPrice());
 		}
 	}
-	
+
 	private static void update() {
 		Scanner scan = new Scanner(System.in);
 		System.out.println("Enter Employee id");
@@ -178,7 +186,7 @@ public class ManagementSystemClient {
 		String password = scan.next();
 		empService.updatePassword(empId, password);
 	}
-	
+
 	private static void delete() {
 		Scanner scan = new Scanner(System.in);
 		System.out.println("Enter Employee id");
